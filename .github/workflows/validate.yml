@@ -1,0 +1,55 @@
+name: Validate isolated AMIS direct-county fix
+
+on:
+  push:
+    branches:
+      - codex/validate-amis-direct-county-20261006
+
+permissions:
+  contents: read
+
+jobs:
+  native:
+    if: >-
+      github.repository == 'dvd233/amis' &&
+      github.repository_id == '1368236760' &&
+      github.repository_owner_id == '111864431' &&
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/codex/validate-amis-direct-county-20261006'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout isolated validation tree
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          path: validation
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Validate identity and require bound source
+        id: binding
+        run: python3 validation/scripts/verify.py binding
+      - name: Checkout exact source commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: dvd233/amis
+          ref: ${{ steps.binding.outputs.source_sha }}
+          path: source
+          persist-credentials: false
+          fetch-depth: 2
+      - name: Use verified Node version
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 20.20.2
+      - name: Use verified npm version
+        run: npm install --global npm@10.9.9 --registry=https://registry.npmjs.org --ignore-scripts --no-audit --no-fund
+      - name: Run original native stages and regression controls
+        run: bash validation/scripts/run.sh
+      - name: Preserve raw outcomes and evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: amis-native-${{ github.run_id }}-${{ github.run_attempt }}
+          path: validation/results/
+          if-no-files-found: error
+          retention-days: 14

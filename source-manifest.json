@@ -1,0 +1,72 @@
+{
+  "repository": "dvd233/amis",
+  "repository_id": "1368236760",
+  "repository_owner_id": "111864431",
+  "validation_ref": "refs/heads/codex/validate-amis-direct-county-20261006",
+  "source_commit": "5263bd31f971e4cd38958bec6c326df096b5d9e2",
+  "base_commit": "43a33ee066990589f5891674e645c4c927761fe5",
+  "base_tree": "236cfb880d4087ac8b0a82f723d6161d46a7760c",
+  "source_tree": "92b07b1c9e3974a8de866ad682ac93ded94b9c3c",
+  "files": [
+    {
+      "path": "packages/amis-ui/src/components/CityArea.tsx",
+      "mode": "100644",
+      "baseline_blob": "3025a6d193b089259f60f5295fffdeeb0936dedf",
+      "blob": "cf6832896906ec71d69e087492553a1acd207a93",
+      "sha256": "95f9520d25b7e7396a8a7894239eeeec12aa128f8e317da963f1a7eac518ccac",
+      "bytes": 8151
+    },
+    {
+      "path": "packages/amis/__tests__/renderers/Form/mobileCity.test.tsx",
+      "mode": "100644",
+      "baseline_blob": "b40ecab9121d3be27da108d8071874fa96f4136d",
+      "blob": "f0807aa9bf4668dc5e9492be64ce585dc8e0240c",
+      "sha256": "b80e36e62164d288bd45cc76d6dd66b7201b614ec351c5bece8db09fdb9a9f91",
+      "bytes": 7762
+    }
+  ],
+  "generated_tracked_paths": [
+    "packages/amis-formula/src/doc.ts",
+    "packages/amis-formula/src/doc.md",
+    "examples/docs.json"
+  ],
+  "generated_nonignored_paths": [
+    "schema.json"
+  ],
+  "generated_artifact_paths": [
+    "schema.json",
+    "packages/amis/schema.json",
+    "packages/amis/schema-minimal.json",
+    "packages/office-viewer/package-lock.json"
+  ],
+  "generated_producers": {
+    "packages/amis-formula/src/doc.ts": "packages/amis-formula/scripts/genDoc.ts",
+    "packages/amis-formula/src/doc.md": "packages/amis-formula/scripts/genDoc.ts",
+    "examples/docs.json": "scripts/generate-search-data.js",
+    "schema.json": "original PR CI cp ./packages/amis/schema.json .",
+    "packages/amis/schema.json": "scripts/build-schemas.ts",
+    "packages/amis/schema-minimal.json": "scripts/build-schemas.ts",
+    "packages/office-viewer/package-lock.json": "original office-viewer npm i, if it creates a native lock"
+  },
+  "regression_suite": "packages/amis/__tests__/renderers/Form/mobileCity.test.tsx",
+  "regression_full_names": [
+    "CityArea confirms and restores direct counties when switching between city levels",
+    "CityArea discards a pending county change through .cxd-PopUp-cancel",
+    "CityArea discards a pending county change through .cxd-PopUp-overlay",
+    "CityArea preserves allowCity=false and allowDistrict=false behavior",
+    "CityArea preserves allowCity=false and allowDistrict=true behavior",
+    "CityArea preserves allowCity=true and allowDistrict=false behavior",
+    "CityArea preserves ordinary district 110101",
+    "CityArea preserves ordinary district 310101",
+    "CityArea preserves ordinary district 500101",
+    "CityArea preserves ordinary district 510104",
+    "CityArea preserves structured direct county values without inventing a district",
+    "CityArea restores direct county \"429004\" without a district column value",
+    "CityArea restores direct county \"500229\" without a district column value",
+    "CityArea restores direct county \"500230\" without a district column value",
+    "CityArea restores direct county 429004 without a district column value",
+    "CityArea restores direct county 500229 without a district column value",
+    "CityArea restores direct county 500230 without a district column value",
+    "CityArea switches from a direct county to a different province and back"
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "repository": "dvd233/amis",
+  "repository_id": "1368236760",
+  "repository_owner_id": "111864431",
+  "source_commit": "5263bd31f971e4cd38958bec6c326df096b5d9e2",
+  "base_commit": "43a33ee066990589f5891674e645c4c927761fe5",
+  "source_tree": "92b07b1c9e3974a8de866ad682ac93ded94b9c3c",
+  "base_tree": "236cfb880d4087ac8b0a82f723d6161d46a7760c",
+  "files": [
+    {
+      "path": "packages/amis-ui/src/components/CityArea.tsx",
+      "mode": "100644",
+      "baseline_blob": "3025a6d193b089259f60f5295fffdeeb0936dedf",
+      "blob": "cf6832896906ec71d69e087492553a1acd207a93",
+      "sha256": "95f9520d25b7e7396a8a7894239eeeec12aa128f8e317da963f1a7eac518ccac",
+      "bytes": 8151
+    },
+    {
+      "path": "packages/amis/__tests__/renderers/Form/mobileCity.test.tsx",
+      "mode": "100644",
+      "baseline_blob": "b40ecab9121d3be27da108d8071874fa96f4136d",
+      "blob": "f0807aa9bf4668dc5e9492be64ce585dc8e0240c",
+      "sha256": "b80e36e62164d288bd45cc76d6dd66b7201b614ec351c5bece8db09fdb9a9f91",
+      "bytes": 7762
+    }
+  ],
+  "validation_ref": "refs/heads/codex/validate-amis-mobile-browser-20261006",
+  "node": "20.20.2",
+  "npm": "10.9.9",
+  "playwright": "1.56.1",
+  "chromium": "141.0.7390.37",
+  "chromium_revision": "1194",
+  "browsers_json_sha256": "1387ec667390e31e49040aa2c81d27720b38d32c7892d1a50c7f85b187e926c1"
+}

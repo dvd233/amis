@@ -1,0 +1,55 @@
+name: Validate real AMIS mobile InputCity
+on:
+  push:
+    branches: [codex/validate-amis-mobile-browser-20261006]
+permissions:
+  contents: read
+jobs:
+  browser:
+    if: >-
+      github.repository == 'dvd233/amis' &&
+      github.repository_id == '1368236760' &&
+      github.repository_owner_id == '111864431' &&
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/codex/validate-amis-mobile-browser-20261006'
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [baseline, candidate]
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    steps:
+      - name: Checkout exact isolated validation tree
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          path: validation
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Verify fork, ref and payload; bind exact source
+        id: binding
+        run: python3 validation/scripts/verify.py binding '${{ matrix.variant }}'
+      - name: Checkout exact source independently
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: dvd233/amis
+          ref: ${{ steps.binding.outputs.source_sha }}
+          path: source
+          persist-credentials: false
+          fetch-depth: 2
+      - name: Set Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 20.20.2
+      - name: Set npm
+        run: npm install --global npm@10.9.9 --registry=https://registry.npmjs.org --ignore-scripts --no-audit --no-fund
+      - name: Build exact native SDK and run real mobile scenarios
+        run: bash validation/scripts/run.sh '${{ matrix.variant }}'
+      - name: Preserve raw exits, screenshots, traces and provenance
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: amis-mobile-${{ matrix.variant }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: validation/results/
+          if-no-files-found: error
+          retention-days: 14

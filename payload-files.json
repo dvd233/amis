@@ -1,0 +1,21 @@
+{
+  ".github/workflows/validate.yml": "2ff4750765209ff73bc1f317da34c42153b4935e0be22123bee7b44b7079ccb9",
+  ".gitignore": "138962571d36e227ef069d04a07198e7441d48b3b735ad35f892c1e48efbb8db",
+  "LICENSE": "d4982381ea1c2751a3ec727b8852c79d2f4e06f0153ba2c4f7e93d4189829e72",
+  "README.md": "0124d5beee6efc6026813117f0445e22d80bf126dcf996d07e52d1c72d6dfd91",
+  "actions-lock-source.json": "f2108c192589ec35bebfe113e51f509a2436f7e226a739ed59288e31941e539d",
+  "harness/app.js": "4e2694602893534b4a81cf3914fb77b1981561e383ed9aaac3251f813ef40e74",
+  "harness/index.html": "683b99dc8196a0054ed6d984119c53adeed4e69e3d0cfa6e3070c0eaac751671",
+  "package-lock.json": "1c2996c9a122c6b9ec0644949086d88b4a5acb72d1313e5897167a9395eafe7e",
+  "package.json": "b5c41ea2e22f79d076d02b93077a80075a1aaa825c120bb4729cfe24a6faf11d",
+  "scripts/browser.mjs": "07a08872e6a88d4925a81e9a3649431bb1de39a3c56e9cfeea1bb413ac2b4f61",
+  "scripts/build-provenance.mjs": "ddb9ae8a1b01673872ae459c69baf012d7c2c6eeb53e34e551b1708a5d77a13b",
+  "scripts/compare.mjs": "d4b99785bf7c7d0f326e58a048d990daaf07834b3cac3a89593666eca67152b0",
+  "scripts/contract.mjs": "7a160a7232b9fd74ed39036b9e1b42d83cbdb69008f68627731267991f2dd8e0",
+  "scripts/run.sh": "2a9e959335b4df8a5ebf1c5aaecfb550dfb25fa9a258f91a20bd4ee00963e3d7",
+  "scripts/verify.py": "f754f9495b71f8181052c5cade29e085812ba817a430f914e5282eb2cd35c666",
+  "source-manifest.json": "d804f0b23ed1b43d53cd1d67c60ef3fda1c07aef0c3b97f201bc4bd907de9172",
+  "tests/contract.test.mjs": "b7bdfd7d652237feba7582b35a8efb1c7561f45d8e5b2fb49751fc8dffd771d7",
+  "tests/guards.test.mjs": "13f0fbd38c929198629485e3563dadc51687a827675178ef0385078bad2623a7",
+  "tests/source.test.mjs": "682c978bb75ede0e9822128a1b5027982b248093f553205541306558e250ff58"
+}

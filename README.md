@@ -1,6 +1,6 @@
 # Source-bound AMIS mobile InputCity browser validation
 
-Status: prepared and statically checked only. No browser was launched, listener opened, source dependency installed, remote branch changed, workflow published or result fabricated during preparation. This payload is intended only for the user's authorized isolated fork Actions branch. It is not an upstream production change or a full-CI pass.
+V3 status: a metadata-only repair after hosted V2 run `37517191437`. Both V2 variants completed all four native builds and the source-post guard, then failed while reading Rollup package metadata hidden by its exports map. Chromium installation and execution were never reached. V3 has been statically checked and awaits a fresh hosted run. Its preparer started no browser/listener, installed no dependencies and made no remote write. This payload is intended only for the user's authorized isolated fork Actions branch. It is not an upstream production change or a full-CI pass.
 
 ## Exact source and execution scope
 
@@ -57,7 +57,11 @@ After downloading both artifacts, run the read-only final pair gate:
 
 `node scripts/compare.mjs /path/to/baseline-artifact /path/to/candidate-artifact`
 
-It requires both complete reports and successful job exits, all 14 exact cases, screenshots/traces, same run/attempt/validation commit, same Chromium and Node binaries, the same recorded dependency versions and unchanged unrelated build/source anchors. A changed actual CityArea SDK module and unchanged InputCity SDK module are required. The source intentionally has no dependency lockfile; retain both full dependency graphs and inspect any transitive drift before claiming an isolated source-only comparison. This final pair review is required before claiming the browser gate passed; green matrix jobs alone are not the final source-only comparison.
+It requires both complete reports and successful job exits, all 14 exact cases, screenshots/traces, same run/attempt/validation commit, same Chromium and Node binaries, the same recorded dependency versions and unchanged unrelated build/source anchors. A changed actual CityArea SDK module and unchanged InputCity SDK module are required. The source intentionally has no dependency lockfile; retain both full dependency graphs and inspect any transitive drift before claiming an isolated source-only comparison. This final pair review is required before claiming the browser gate passed; green matrix jobs alone are not the final browser evidence review.
+
+The two matrix jobs share a runner label, not necessarily an identical runner image. In V2, baseline used image `20260927.309.1` and candidate used `20261004.315.1`, while their recorded Node binary hashes matched. Keep the actual `runtime.json` image metadata and full dependency graphs visible. The pair gate compares selected dependency versions and anchors; it does not establish equality of every transitive dependency, OS package or environment setting. Report actual scenario outcomes as source-bound browser evidence, without claiming that source was the only environmental difference.
+
+V3 reads dependency metadata without loading package entry code. It first resolves the exported package.json; only `ERR_PACKAGE_PATH_NOT_EXPORTED` enables resolving the public entry and looking up a same-named manifest in its real ancestors, bounded by this checkout's node_modules. Name/version mismatches, symlink escapes, missing entries and other errors still fail. Resolved manifest paths and SHA-256 values are recorded as `dependencyManifests`; the existing dependency-version comparison and browser acceptance criteria are unchanged.
 
 The previous native full-CI date assertion failures are outside this browser workflow and remain separately reported; this does not erase or rerun that full acceptance gate.
 

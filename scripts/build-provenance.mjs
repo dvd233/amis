@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import {createRequire} from 'node:module';
 import {matchesSdkFactory,matchesSdkRender} from './contract.mjs';
+import {packageMetadata} from './package-metadata.mjs';
 const root=path.resolve(import.meta.dirname,'..');
 const source=path.resolve(process.argv[2]), variant=process.argv[3], out=path.join(root,'results');
 const require=createRequire(path.join(source,'package.json'));
@@ -60,12 +61,15 @@ const css=fs.readFileSync(path.join(sdk,'sdk.css'),'utf8');
 for(const selector of ['.cxd-CityArea','.cxd-PopUp','.cxd-PickerColumns-columnWrapper']) assert.ok(css.includes(selector),`Missing native CSS selector: ${selector}`);
 const anchors={};
 for(const name of ['packages/amis-ui/src/components/CityArea.tsx','packages/amis/src/renderers/Form/InputCity.tsx','packages/amis-ui/src/components/CityDB.ts','packages/amis-ui/lib/components/CityArea.js','packages/amis/lib/renderers/Form/InputCity.js','packages/amis-ui/lib/themes/cxd.css','packages/amis-ui/scss/components/_popup.scss','packages/amis-ui/scss/components/_picker-columns.scss','fis-conf.js','packages/amis/build.sh','examples/embed.tsx','examples/loader.ts','scripts/embed-packager.js']) anchors[name]=hash(fs.readFileSync(path.join(source,name)));
-const dependencies={};
-for(const name of ['react','react-dom','@babel/parser','typescript','rollup','fis3','fis-parser-sass','fis-optimizer-terser','mobx','mobx-react','mobx-state-tree','react-transition-group']) dependencies[name]=require(`${name}/package.json`).version;
+const dependencies={},dependencyManifests={};
+for(const name of ['react','react-dom','@babel/parser','typescript','rollup','fis3','fis-parser-sass','fis-optimizer-terser','mobx','mobx-react','mobx-state-tree','react-transition-group']) {
+  const metadata=packageMetadata(name,require,source);
+  dependencies[name]=metadata.version;dependencyManifests[name]=metadata;
+}
 for(const name of ['amis-formula','amis-core','amis-ui','amis']) assert.equal(fs.realpathSync(path.join(source,'node_modules',name)),path.join(source,'packages',name),'Workspace must resolve to this checkout');
 fs.writeFileSync(path.join(out,'build.json'),JSON.stringify({
   ...sourceRecord,completedAt:new Date().toISOString(),nativeCommands:['npm run build --workspace amis-formula','npm run build --workspace amis-core','npm run build --workspace amis-ui','npm run build --workspace amis'],
-  inventory,modules,anchors,dependencies,
+  inventory,modules,anchors,dependencies,dependencyManifests,
   sourceMaps:'Native SDK intentionally strips source maps. Exact native SDK module ranges and SHA-256, native source/lib hashes, V8 execution coverage and first-stack-frame offsets provide direct build/runtime binding without modifying source.'
 },null,2)+'\n');
 console.log(JSON.stringify({variant,modules,sdkAssets:entries.length,dependencies},null,2));

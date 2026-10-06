@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {classify,scenarios,summarize,stackLocation,matchesSdkFactory,matchesSdkRender,requireRenderCoverage} from '../scripts/contract.mjs';
+import {classify,scenarios,summarize,stackLocation,matchesSdkFactory,matchesSdkRender,requireRenderCoverage,verifyBaselineConfirmation} from '../scripts/contract.mjs';
 const good = {variant:'candidate',scenario:scenarios[0],phase:'initial',observed:false,errors:[],infraErrors:[],uiPassed:true,mobileProven:true,coverageProven:true};
 test('candidate never becomes green from baseline failures',()=>{
   assert.equal(classify(good),'passed');
@@ -41,4 +41,37 @@ test('executed class IIFE cannot substitute for an unexecuted inner renderer',()
   assert.throws(()=>requireRenderCoverage(module,[outer]));
   assert.throws(()=>requireRenderCoverage(module,[outer,inner(0)]));
   assert.equal(requireRenderCoverage(module,[outer,inner(1)]).ranges[0].count,1);
+});
+
+function confirmationFixture() {
+  const scenario=scenarios.find(x=>x.id==='controlled-roundtrip');
+  const before={state:{errors:[],data:{address:500101},rendererEvents:[],formChanges:[],controlledUpdates:0},dom:{label:scenario.label,columns:[{selected:'重庆市',options:34},{selected:'城口县',options:20},{selected:null,options:0}]}};
+  const after={errors:[{message:'fixture runtime error; bound identity is checked separately by classifier'}],rendererEvents:['500229'],formChanges:[],controlledUpdates:0,data:null};
+  return {scenario,before,after};
+}
+test('baseline confirmation requires real pre-confirm state and one exact new renderer event, without inventing a Form callback',()=>{
+  const {scenario,before,after}=confirmationFixture();
+  const proof=verifyBaselineConfirmation(before,after,scenario,'500229','城口县');
+  assert.equal(proof.formCallbacksObserved,0);assert.equal(proof.externalFeedbackCalls,0);
+  after.formChanges=[{data:{address:'500229'}}];after.controlledUpdates=1;
+  assert.equal(verifyBaselineConfirmation(before,after,scenario,'500229','城口县').formCallbacksObserved,1);
+});
+test('baseline confirmation rejects corrupted pre-state, event, crash and callback evidence',()=>{
+  for(const corrupt of [
+    f=>f.before.state.errors.push({message:'earlier error'}),
+    f=>f.before.state.data.address=500230,
+    f=>f.before.dom.label='wrong label',
+    f=>f.before.dom.columns.pop(),
+    f=>f.before.dom.columns[1].selected='丰都县',
+    f=>f.before.dom.columns[2].options=1,
+    f=>f.after.rendererEvents=[],
+    f=>f.after.rendererEvents=['500230'],
+    f=>f.after.rendererEvents=['500229','500229'],
+    f=>f.after.errors=[],
+    f=>{f.after.formChanges=[{data:{address:'500230'}}];f.after.controlledUpdates=1;},
+    f=>f.after.controlledUpdates=1
+  ]) {
+    const f=confirmationFixture();corrupt(f);
+    assert.throws(()=>verifyBaselineConfirmation(f.before,f.after,f.scenario,'500229','城口县'));
+  }
 });

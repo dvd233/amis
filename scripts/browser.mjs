@@ -4,7 +4,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import http from 'node:http';
 import {execFileSync} from 'node:child_process';
-import {scenarios,structured,classify,summarize,stackLocation,requireRenderCoverage} from './contract.mjs';
+import {scenarios,structured,classify,summarize,stackLocation,requireRenderCoverage,verifyBaselineConfirmation} from './contract.mjs';
 const ROOT=path.resolve(import.meta.dirname,'..');
 const SOURCE=path.resolve(process.argv[2]),variant=process.argv[3];
 assert.ok(['baseline','candidate'].includes(variant));
@@ -136,15 +136,21 @@ try {
     const assertEmptyDistrict=async()=>{assert.equal(await columns().count(),3);assert.equal(await columns().nth(2).locator('li').count(),0);};
     const assertValue=async expected=>{await page.waitForFunction(value=>JSON.stringify(window.readCity().data?.address)===JSON.stringify(value),expected);};
     const confirm=async(expected,expectedLabel,expectCrash=false)=>{
-      const before=await read();await page.locator('.cxd-PopUp-confirm').tap();
+      const before=await read();
+      let preconfirm;
+      if(expectCrash) {
+        await noError();
+        assert.equal(entry.pageErrors.length,0,'Page error before confirmation');
+        await label(scenario.label);await assertValue(scenario.value);await assertEmptyDistrict();
+        preconfirm=await checkpoint('preconfirm-baseline');
+      }
+      await page.locator('.cxd-PopUp-confirm').tap();
       await page.waitForFunction(n=>window.validation.rendererEvents.length>n,before.rendererEvents.length);
       assert.deepEqual((await read()).rendererEvents.at(-1),expected,'InputCity renderer change payload');
       if(expectCrash) {
         await page.waitForFunction(()=>window.validation.errors.length>0);
         const state=await read();
-        // The exact controlled value must have reached the form, not only the label.
-        assert.ok(state.formChanges.some(x=>JSON.stringify(x.data.address)===JSON.stringify(expected)),'No actual form change before baseline crash');
-        assert.ok(state.controlledUpdates>before.controlledUpdates);
+        entry.confirmationEvidence=verifyBaselineConfirmation(preconfirm,state,scenario,expected,expectedLabel.split(',').at(-1));
         observed=true;entry.phase='confirm';await checkpoint('expected-baseline-crash');return;
       }
       await popupClosed();await assertValue(expected);await label(expectedLabel);
@@ -167,6 +173,7 @@ try {
     try {
       assert.equal((await page.goto(origin+'/',{waitUntil:'networkidle'})).status(),200);
       await page.evaluate(config=>window.mountCity(config),{value:scenario.value,props:scenario.props??{}});
+      await page.waitForFunction(()=>window.validation.sdkReady===true);
       if(variant==='baseline' && scenario.regression==='initial') {
         await page.waitForFunction(()=>window.validation.errors.length>0);
         observed=true;await checkpoint('expected-baseline-crash');

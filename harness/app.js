@@ -3,10 +3,33 @@
   const clone = value => value === undefined ? null : JSON.parse(JSON.stringify(value));
   const state = window.validation = {
     rendererEvents: [], formChanges: [], errors: [], cityAreaObserved: false,
-    initialFormData: null, controlledUpdates: 0, mobileUI: null
+    initialFormData: null, controlledUpdates: 0, mobileUI: null,
+    sdkReady: false, sdkScopeCallbacks: 0, sdkApi: []
   };
   let scoped;
-  const form = () => scoped && scoped.getComponentByName('cityForm');
+  // embed returns updateProps/updateSchema/unmount immediately. Scoped methods
+  // are populated later by its public fifth-argument scope callback.
+  const activateSdk = () => {
+    if (!scoped || !state.sdkScopeCallbacks) return;
+    if (typeof scoped.getComponentByName !== 'function') {
+      throw new TypeError('SDK scope callback did not expose getComponentByName');
+    }
+    state.sdkReady = true;
+    state.sdkApi = Object.keys(scoped).sort();
+  };
+  const form = () => {
+    if (!state.sdkReady) return null;
+    if (typeof scoped.getComponentByName !== 'function') {
+      throw new TypeError('Ready SDK lost getComponentByName');
+    }
+    const current = scoped.getComponentByName('cityForm');
+    // Scope readiness precedes Form registration. An absent Form is pending;
+    // a present Form with an invalid API is an error, never silently ignored.
+    if (current && typeof current.getValues !== 'function') {
+      throw new TypeError('Registered Form does not expose getValues');
+    }
+    return current;
+  };
   const paint = () => {
     document.querySelector('#evidence').textContent = JSON.stringify({
       data: form() ? clone(form().getValues()) : null,
@@ -55,7 +78,15 @@
         paint();
       },
       fetcher: () => { throw new Error('Unexpected application API request'); }
+    }, () => {
+      state.sdkScopeCallbacks++;
+      activateSdk();
     });
+    if (!scoped || typeof scoped.updateProps !== 'function') {
+      throw new TypeError('SDK embed did not expose updateProps');
+    }
+    // Also handles a valid scope callback invoked before embed returns.
+    activateSdk();
     const sample = () => {
       if (form()) {
         state.mobileUI = form().props.mobileUI;

@@ -75,3 +75,23 @@ export function requireRenderCoverage(module,functions) {
   assert.ok(match && match.ranges[0].count>0,'Exact native inner render function did not execute');
   return match;
 }
+export function verifyBaselineConfirmation(before,after,scenario,expected,selectedLabel) {
+  // The form control can restore tmpValue and crash before its independent
+  // debounce reaches the Form callback. Prove the reachable boundary honestly.
+  assert.equal(before.state.errors.length,0,'Error before baseline confirmation');
+  assert.deepEqual(before.state.data?.address,scenario.value,'Wrong real pre-confirm Form data');
+  assert.equal(before.dom.label,scenario.label,'Wrong committed pre-confirm display');
+  assert.equal(before.dom.columns.length,3,'Wrong pending column count');
+  assert.equal(before.dom.columns[1].selected,selectedLabel,'Wrong pending county');
+  assert.equal(before.dom.columns[2].options,0,'Pending direct county has a district');
+  assert.equal(after.rendererEvents.length,before.state.rendererEvents.length+1,'Confirmation must produce exactly one new renderer event');
+  assert.deepEqual(after.rendererEvents.at(-1),expected,'Wrong actual renderer confirmation value');
+  assert.ok(after.errors.length>0,'No observed post-confirmation runtime error');
+  const formChanges=after.formChanges.slice(before.state.formChanges.length);
+  for(const event of formChanges) assert.deepEqual(event.data.address,expected,'Incorrect Form data if a Form callback was reached');
+  const feedbackCalls=after.controlledUpdates-before.state.controlledUpdates;
+  assert.equal(feedbackCalls,formChanges.length,'External feedback count does not match actual Form callbacks');
+  return {before,rendererValue:after.rendererEvents.at(-1),formCallbacksObserved:formChanges.length,
+    externalFeedbackCalls:feedbackCalls,formDataAfterError:after.data,
+    note:'Renderer confirmation and subsequent bound CityArea failure are observed. Committed Form data changes and external feedback are reported only when their actual callbacks were reached.'};
+}
